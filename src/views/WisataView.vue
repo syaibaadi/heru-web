@@ -1,49 +1,67 @@
 <template>
   <div class="container my-5 py-5">
-      <div class="row mb-5">
-          <div class="col-12">
-              <h1 class="fw-bold text-center">List Tour</h1>
-              <hr>
+    <div class="row mb-5">
+      <div class="col-12">
+        <h1 class="fw-bold text-center">List Tour</h1>
+        <hr>
+      </div>
+    </div>
+
+    <!-- Gunakan v-for untuk loop melalui array wisatas -->
+    <div class="row">
+      <div class="col-md-4" v-for="wisata in wisatas" :key="wisata.id">
+        <div class="card" style="width: 18rem;">
+          <!-- Menggunakan gambar dari data -->
+          <img :src="wisata.image" class="card-img-top" alt="image" />
+          <div class="card-body">
+            <!-- Menggunakan data untuk title dan deskripsi -->
+            <h5 class="card-title">{{ wisata.nama }}</h5>
+            <p class="card-text">{{ wisata.description }}</p>
           </div>
+          <ul class="list-group list-group-flush">
+            <!-- Menggunakan data untuk destinasi dan benefit -->
+            <li class="list-group-item">Destinasi: {{ wisata.destination }}</li>
+            <li class="list-group-item">Benefit: {{ wisata.benefit }}</li>
+            <li class="list-group-item">Price: Rp {{ wisata.price.toLocaleString() }}</li>
+          </ul>
+          <div class="card-body">
+            <!-- Link atau button sesuai kebutuhan -->
+            <a href="#" class="btn btn-primary">More Info</a>
+          </div>
+        </div>
       </div>
-      <div class="row">
-            <div class="col-md-4">
-                <div class="card p-1" style="width: 18rem;">
-                    <img src="Front-End.jpg" class="card-img-top" alt="fornt end">
-                    <div class="card-body">
-                      <h5 class="card-title text-center">Swagger Rest API Sistem Speech Recognition</h5>
-                      <p class="card-text">Membuat serta mengatur logic dari management data speech regocnition. Validasi dan mengubah data suara dari front end untuk disimpan kedalam database</p>
-                      <a href="#" class="btn btn-primary">Repository Saya</a>
-                    </div>
-                  </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card p-1" style="width: 18rem;">
-                    <img src="backend-developer.jpg" class="card-img-top" alt="Back end">
-                    <div class="card-body">
-                      <h5 class="card-title text-center">Swagger Rest API management Store</h5>
-                      <p class="card-text">embuat serta mengatur logic dari management data store. Validasi dan mengubah data suara dari front end untuk disimpan kedalam database.</p>
-                      <a href="#" class="btn btn-primary">Repository Saya</a>
-                    </div>
-                  </div>
-              </div>
-              <div class="col-md-4">
-                <div class="card p-1" style="width: 18rem;">
-                    <img src="database.jpg" class="card-img-top" alt="Database">
-                    <div class="card-body">
-                      <h5 class="card-title text-center">Database Managemen</h5>
-                      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                      <a href="#" class="btn btn-primary">Repository Saya</a>
-                    </div>
-                  </div>
-              </div>
-      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'WisataView'
+  name: 'WisataView',
+  data() {
+    return {
+      wisatas: []  // Menyimpan data wisata
+    }
+  },
+  mounted() {
+    this.fetchDataWisata();
+  },
+  methods: {
+    async fetchDataWisata() {
+      try {
+        // Mengambil data dari API
+        const response = await fetch(`http://103.250.11.13:8000/wisata`, {
+          method: 'GET',
+        });
+
+        // Parsing data JSON dan menyimpannya di variabel wisatas
+        const wisatas = await response.json();
+        this.wisatas = wisatas;  // Menyimpan data ke dalam wisatas
+        console.log('Data Wisata:', wisatas);
+      } catch (error) {
+        console.log('Error fetching data:', error);
+      }
+    }
+  }
 }
 </script>
 

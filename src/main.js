@@ -4,6 +4,7 @@ import router from './router';
 
 // Import Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
 // Membuat instance Vue 3 dan menghubungkan router
 createApp(App)
