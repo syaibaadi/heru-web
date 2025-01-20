@@ -10,9 +10,9 @@
     <!-- Gunakan v-for untuk loop melalui array wisatas -->
     <div class="row">
       <div class="col-md-4" v-for="wisata in wisatas" :key="wisata.id">
-        <div class="card" style="width: 18rem;">
+        <div class="card h-100"  style="width: 18rem;">
           <!-- Menggunakan gambar dari data -->
-          <img :src="wisata.image" class="card-img-top" alt="image" />
+          <img :src="'data:image/png;base64,' + wisata.image" class="card-img-top" alt="image" />
           <div class="card-body">
             <!-- Menggunakan data untuk title dan deskripsi -->
             <h5 class="card-title">{{ wisata.nama }}</h5>
@@ -26,7 +26,7 @@
           </ul>
           <div class="card-body">
             <!-- Link atau button sesuai kebutuhan -->
-            <a href="#" class="btn btn-primary">More Info</a>
+            <button class="btn btn-primary" @click="goToCheckout(wisata.id)">ORDER NOW</button>
           </div>
         </div>
       </div>
@@ -55,11 +55,15 @@ export default {
 
         // Parsing data JSON dan menyimpannya di variabel wisatas
         const wisatas = await response.json();
+        console.log(wisatas);
         this.wisatas = wisatas;  // Menyimpan data ke dalam wisatas
         console.log('Data Wisata:', wisatas);
       } catch (error) {
         console.log('Error fetching data:', error);
       }
+    },
+    goToCheckout(id){
+      this.$router.push(`/checkout/${id}`);
     }
   }
 }

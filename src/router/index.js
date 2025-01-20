@@ -18,6 +18,12 @@ const routes = [
     path: '/wisata',
     name: 'wisata',
     component: () => import(/* webpackChunkName: "about" */ '../views/WisataView.vue')
+  },
+  {
+    path: '/checkout/:id',
+    name: 'checkout',
+    component: () => import(/* webpackChunkName: "about" */ '../views/CheckoutView.vue'),
+    props: true
   }
 ]
 
