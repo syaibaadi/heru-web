@@ -2,7 +2,7 @@
   <div class="checkout-container">
     <h2>Form Checkout</h2>
 
-    <form @submit.prevent="submitCheckout" class="checkout-form">
+    <form @submit.prevent="showupModal" class="checkout-form">
       <!-- Data Pesanan -->
       <div class="container mb-5 mt-5">
         <div class="row">
@@ -10,7 +10,7 @@
           <div class="col-6">
             <h4>Data Pesanan</h4>
             <div v-if="orderData">
-              <p><strong>Nama Wisata:</strong> {{ orderData.name }}</p>
+              <p><strong>Nama Wisata:</strong> {{ orderData.nama }}</p>
               <p><strong>Deskripsi:</strong> {{ orderData.description }}</p>
               <p><strong>Harga:</strong> Rp {{ orderData.price }}</p>
             </div>
@@ -39,6 +39,14 @@
                 required
               />
 
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                v-model="checkoutData.email"
+                required
+              />
+
               <label for="bookdate">Rencana Tanggal</label>
               <input
                 type="datetime-local"
@@ -63,27 +71,33 @@
                 required
               ></textarea>
               
-              <label for="confirmOrder">
-                <input
-                  type="checkbox"
-                  id="confirmOrder"
-                  v-model="checkoutData.confirmOrder"
-                />
-                Saya yakin dengan pesanan ini
-              </label>
-
               <button
                 type="submit"
-                :disabled="!isFormValid"
                 class="btn btn-primary"
               >
-                Proses Pembayaran
+                Checkout
               </button>
             </div>
           </div>
         </div>
       </div>
     </form>
+    <!-- Modal -->
+    <div v-if="isModalVisible" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Data Checkout</h3>
+        <p><strong>Nama Lengkap:</strong> {{ checkoutData.fullname }}</p>
+        <p><strong>Nomor Telepon:</strong> {{ checkoutData.phone }}</p>
+        <p><strong>Alamat:</strong> {{ checkoutData.address }}</p>
+        <p><strong>Email:</strong> {{ checkoutData.email }}</p>
+        <p><strong>Tanggal Rencana:</strong> {{ checkoutData.bookdate }}</p>
+        <p><strong>Jumlah Peserta:</strong> {{ checkoutData.total_user }}</p>
+        <p><strong>Deskripsi Penjemputan:</strong> {{ checkoutData.description }}</p>
+
+        <button class="btn btn-primary" @click="submitCheckout">Bayar</button>
+        <button class="btn btn-secondary" @click="closeModal">Tutup</button>
+      </div>
+    </div>
   </div>
 </template>
   
@@ -96,13 +110,14 @@
         // Data pesanan yang sudah ada
         orderData: {},
         orderan: null,
+        isModalVisible: false,
         // Data untuk checkout
         checkoutData: {
           fullname: "",
           email: "",
           address: "",
           phone: "",
-          paymentMethod: "credit_card",
+          bookdate: "",
           confirmOrder: false
         }
       };
@@ -114,7 +129,9 @@
           this.checkoutData.fullname &&
           this.checkoutData.email &&
           this.checkoutData.address &&
+          this.checkoutData.email &&
           this.checkoutData.phone &&
+          this.checkoutData.bookdate &&
           this.checkoutData.paymentMethod &&
           this.checkoutData.confirmOrder
         );
@@ -138,25 +155,58 @@
             this.orderData = data;
             console.log(data);
         },
+        showupModal(){
+          this.isModalVisible= true;
+        },
         async submitCheckout() {
-        try {
-          // Menyiapkan payload untuk dikirim ke server
-          const payload = {
-            orderData: this.orderData,
-            checkoutData: this.checkoutData
-          };
-  
-          // Kirim data ke server menggunakan Axios
-          const response = await axios.post("http://103.250.11.13:8000/transaksi", payload);
-  
-          // Menangani respon sukses
-          console.log("Pesanan berhasil diproses:", response.data);
-          alert("Pesanan berhasil diproses!");
-        } catch (error) {
-          // Menangani error jika ada
-          console.error("Terjadi kesalahan saat memproses pesanan:", error);
-          alert("Terjadi kesalahan. Silakan coba lagi.");
-        }
+          try {
+            // Menyiapkan payload untuk dikirim ke server
+            const payload = {
+              "nama": this.checkoutData.fullname,
+              "telfon": this.checkoutData.phone,
+              "alamat": this.checkoutData.address,
+              "book_date": this.checkoutData.bookdate,
+              "total_user": 0,
+              "description": "Payment Wisata",
+              "status": "PENDING",
+              "wisata_id": this.orderData.id,
+              "total_price": this.orderData.price
+            };
+    
+            // Kirim data ke server menggunakan Axios
+            const response = await axios.post("http://103.250.11.13:8000/transaksi", payload);
+    
+            // Menangani respon sukses
+            console.log("Pesanan berhasil diproses:", response.data);
+
+            const paymentPayload = {
+              wisata_id: this.orderData.id,
+              nama_wisata: this.orderData.nama,
+              price: this.orderData.price,
+              firstname: this.checkoutData.fullname.split(" ")[0], // Mengambil nama depan
+              lastname: this.checkoutData.fullname.split(" ").slice(1).join(" "), // Mengambil nama belakang
+              email: this.checkoutData.email,
+              phone: this.checkoutData.phone,
+            };
+
+            const paymentResponse = await axios.post(
+              "http://103.250.11.13:8000/midtrans/create-payment-link",
+              paymentPayload
+            );
+
+            // Menangani respon sukses pembuatan payment link
+            console.log("Payment link berhasil dibuat:", paymentResponse.data);
+
+            // Membuka payment_url di tab baru
+            const paymentUrl = paymentResponse.data.payment_url;
+            window.open(paymentUrl, "_blank");
+
+            alert("Pesanan berhasil diproses! Silakan lakukan pembayaran.");
+          } catch (error) {
+            // Menangani error jika ada
+            console.error("Terjadi kesalahan saat memproses pesanan:", error);
+            alert("Terjadi kesalahan. Silakan coba lagi.");
+          }
         }
     }
   };
@@ -227,4 +277,24 @@ h4 {
 .checkout-form label input[type="checkbox"] {
   margin-right: 10px;  /* Memberikan jarak antara checkbox dan teks */
 }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+}
+
 </style>
