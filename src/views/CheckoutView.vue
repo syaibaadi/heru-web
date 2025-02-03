@@ -185,7 +185,7 @@
               "address": this.checkoutData.address,
               "email": this.checkoutData.email,
               "password": "Pass1234"
-            }
+            };
             const responsePelanggan = await axios.post("http://103.179.56.241:8000/pelanggan", postUser);
             console.log("User berhasil ditambahkan", responsePelanggan.data);
 
