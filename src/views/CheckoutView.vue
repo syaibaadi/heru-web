@@ -202,6 +202,7 @@
             window.open(paymentUrl, "_blank");
 
             alert("Pesanan berhasil diproses! Silakan lakukan pembayaran.");
+            window.location.href = "http://103.250.11.13:8081/"
           } catch (error) {
             // Menangani error jika ada
             console.error("Terjadi kesalahan saat memproses pesanan:", error);
