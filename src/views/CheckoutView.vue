@@ -143,7 +143,7 @@
     methods: {
         async getData(){
             const wisataId = this.$route.params.id;
-            const response = await fetch(`http://103.250.11.13:8000/wisata/${wisataId}`, {
+            const response = await fetch(`http://103.179.56.241:8000/wisata/${wisataId}`, {
                 method: 'GET'
             });
 
@@ -174,7 +174,7 @@
             };
     
             // Kirim data ke server menggunakan Axios
-            const response = await axios.post("http://103.250.11.13:8000/transaksi", payload);
+            const response = await axios.post("http://103.179.56.241:8000/transaksi", payload);
     
             // Menangani respon sukses
             console.log("Pesanan berhasil diproses:", response.data);
@@ -190,7 +190,7 @@
             };
 
             const paymentResponse = await axios.post(
-              "http://103.250.11.13:8000/midtrans/create-payment-link",
+              "http://103.179.56.241:8000/midtrans/create-payment-link",
               paymentPayload
             );
 
@@ -202,7 +202,7 @@
             window.open(paymentUrl, "_blank");
 
             alert("Pesanan berhasil diproses! Silakan lakukan pembayaran.");
-            window.location.href = "http://103.250.11.13:8081/"
+            window.location.href = "http://103.179.56.241:8081/"
           } catch (error) {
             // Menangani error jika ada
             console.error("Terjadi kesalahan saat memproses pesanan:", error);

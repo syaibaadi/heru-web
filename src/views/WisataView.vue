@@ -49,7 +49,7 @@ export default {
     async fetchDataWisata() {
       try {
         // Mengambil data dari API
-        const response = await fetch(`http://103.250.11.13:8000/wisata`, {
+        const response = await fetch(`http://103.179.56.241:8000/wisata`, {
           method: 'GET',
         });
 
