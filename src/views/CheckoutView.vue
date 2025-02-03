@@ -172,12 +172,22 @@
               "wisata_id": this.orderData.id,
               "total_price": this.orderData.price
             };
-    
+            
             // Kirim data ke server menggunakan Axios
             const response = await axios.post("http://103.179.56.241:8000/transaksi", payload);
     
             // Menangani respon sukses
             console.log("Pesanan berhasil diproses:", response.data);
+
+            const postUser = {
+              "nama": this.checkoutData.fullname,
+              "phone": this.checkoutData.phone,
+              "address": this.checkoutData.address,
+              "email": this.checkoutData.email,
+              "password": "Pass1234"
+            }
+            const responsePelanggan = await axios.post("http://103.179.56.241:8000/pelanggan", postUser);
+            console.log("User berhasil ditambahkan", postUser);
 
             const paymentPayload = {
               wisata_id: this.orderData.id,
