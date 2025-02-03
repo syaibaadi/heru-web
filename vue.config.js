@@ -4,7 +4,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/wisata': {
-        target: 'http://103.250.11.13:8000',
+        target: 'http://103.179.56.241:8000',
         changeOrigin: true,
         secure: false
       }
