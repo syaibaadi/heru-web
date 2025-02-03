@@ -187,7 +187,7 @@
               "password": "Pass1234"
             }
             const responsePelanggan = await axios.post("http://103.179.56.241:8000/pelanggan", postUser);
-            console.log("User berhasil ditambahkan", postUser);
+            console.log("User berhasil ditambahkan", responsePelanggan.data);
 
             const paymentPayload = {
               wisata_id: this.orderData.id,
