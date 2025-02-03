@@ -23,7 +23,7 @@
                         <a href="https://wa.me/085864479332" class="btn btn-danger px-5 py-2">Hubungi Saya</button>
                     </div> -->
                     <div class="button mt-4">
-                      <a href="https://wa.me/6285864479332" class="btn btn-outline-danger px-4 py-2">Pekerjakan Saya</a>
+                      <a href="https://wa.me/628816581434" class="btn btn-outline-danger px-4 py-2">Contact Us</a>
                   </div>
             </div>
         </div>
