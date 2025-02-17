@@ -7,10 +7,9 @@
       </div>
     </div>
 
-    <!-- Gunakan v-for untuk loop melalui array wisatas -->
-    <div class="row">
-      <div class="col-md-4" v-for="wisata in wisatas" :key="wisata.id">
-        <div class="card h-100"  style="width: 18rem;">
+    <div class="row d-flex">
+      <div class="col-md-4 mb-4" v-for="wisata in wisatas" :key="wisata.id">
+        <div class="card d-flex flex-column" style="height: 100%; padding-bottom: 50px;">
           <!-- Menggunakan gambar dari data -->
           <img :src="'data:image/png;base64,' + wisata.image" class="card-img-top" alt="image" />
           <div class="card-body">
@@ -18,19 +17,20 @@
             <h5 class="card-title">{{ wisata.nama }}</h5>
             <p class="card-text">{{ wisata.description }}</p>
           </div>
-          <ul class="list-group list-group-flush">
+          <ul class="list-group list-group-flush d-flex flex-column">
             <!-- Menggunakan data untuk destinasi dan benefit -->
             <li class="list-group-item">Destinasi: {{ wisata.destination }}</li>
             <li class="list-group-item">Benefit: {{ wisata.benefit }}</li>
             <li class="list-group-item">Price: Rp {{ wisata.price.toLocaleString() }}</li>
           </ul>
-          <div class="card-body">
+          <div class="card-body mt-auto">
             <!-- Link atau button sesuai kebutuhan -->
             <button class="btn btn-primary" @click="goToCheckout(wisata.id)">ORDER NOW</button>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 

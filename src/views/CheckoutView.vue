@@ -178,7 +178,7 @@
     
             // Menangani respon sukses
             console.log("Pesanan berhasil diproses:", response.data);
-
+            
             const postUser = {
               "nama": this.checkoutData.fullname,
               "phone": this.checkoutData.phone,
@@ -197,6 +197,7 @@
               lastname: this.checkoutData.fullname.split(" ").slice(1).join(" "), // Mengambil nama belakang
               email: this.checkoutData.email,
               phone: this.checkoutData.phone,
+              order_id: response.data.order_id
             };
 
             const paymentResponse = await axios.post(
