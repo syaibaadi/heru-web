@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-// import AboutView from '../views/AboutView.vue'
-// import WisataView from '@/views/WisataView.vue'
+import RegisterPage from '../views/RegisterView.vue'; 
 
 const routes = [
   {
@@ -22,9 +21,28 @@ const routes = [
   {
     path: '/checkout/:id',
     name: 'checkout',
-    component: () => import(/* webpackChunkName: "about" */ '../views/CheckoutView.vue'),
-    props: true
-  }
+    component: () => import(/* webpackChunkName: "checkout" */ '../views/CheckoutView.vue'),
+    props: true,
+    beforeEnter: (to, from, next) => {
+      const loggedInUser = localStorage.getItem("loggedInUser");
+      if (!loggedInUser) {
+        // Jika user belum login, arahkan ke halaman login
+        next({ name: 'login' });
+      } else {
+        next();
+      }
+    }
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import(/* webpackChunkName: "login" */ '../views/LoginView.vue')
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: RegisterPage
+  },
 ]
 
 const router = createRouter({

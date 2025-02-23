@@ -26,10 +26,17 @@
                 id="fullname"
                 v-model="checkoutData.fullname"
                 required
+                readonly
               />
-              
+
               <label for="phone">Nomor Telepon</label>
-              <input type="text" id="phone" v-model="checkoutData.phone" required />
+              <input
+                type="text"
+                id="phone"
+                v-model="checkoutData.phone"
+                required
+                readonly
+              />
 
               <label for="address">Alamat</label>
               <input
@@ -37,6 +44,7 @@
                 id="address"
                 v-model="checkoutData.address"
                 required
+                readonly
               />
 
               <label for="email">Email</label>
@@ -45,7 +53,9 @@
                 id="email"
                 v-model="checkoutData.email"
                 required
+                readonly
               />
+
 
               <label for="bookdate">Rencana Tanggal</label>
               <input
@@ -138,6 +148,16 @@
       }
     },
     mounted(){
+      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (loggedInUser) {
+        this.checkoutData.fullname = loggedInUser.nama;
+        this.checkoutData.email = loggedInUser.email;
+        this.checkoutData.address = loggedInUser.address;
+        this.checkoutData.phone = loggedInUser.phone;
+        console.log(loggedInUser);
+      } else {
+        this.$router.push({ name: 'login' });
+      }
       this.getData();
     },
     methods: {
@@ -179,15 +199,15 @@
             // Menangani respon sukses
             console.log("Pesanan berhasil diproses:", response.data);
             
-            const postUser = {
-              "nama": this.checkoutData.fullname,
-              "phone": this.checkoutData.phone,
-              "address": this.checkoutData.address,
-              "email": this.checkoutData.email,
-              "password": "Pass1234"
-            };
-            const responsePelanggan = await axios.post("http://103.179.56.241:8000/pelanggan", postUser);
-            console.log("User berhasil ditambahkan", responsePelanggan.data);
+            // const postUser = {
+            //   "nama": this.checkoutData.fullname,
+            //   "phone": this.checkoutData.phone,
+            //   "address": this.checkoutData.address,
+            //   "email": this.checkoutData.email,
+            //   "password": "Pass1234"
+            // };
+            // const responsePelanggan = await axios.post("http://103.179.56.241:8000/pelanggan", postUser);
+            // console.log("User berhasil ditambahkan", responsePelanggan.data);
 
             const paymentPayload = {
               wisata_id: this.orderData.id,
