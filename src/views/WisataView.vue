@@ -63,6 +63,7 @@ export default {
       }
     },
     goToCheckout(id){
+      localStorage.setItem("redirectAfterLogin", `/checkout/${id}`);
       this.$router.push(`/checkout/${id}`);
     }
   }
