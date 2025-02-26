@@ -12,7 +12,10 @@
             <div v-if="orderData">
               <p><strong>Nama Wisata:</strong> {{ orderData.nama }}</p>
               <p><strong>Deskripsi:</strong> {{ orderData.description }}</p>
-              <p><strong>Harga:</strong> Rp {{ orderData.price }}</p>
+              <p><strong>Harga:</strong> Rp {{ orderData.price }} / orang</p>
+              <p><strong>Benefit:</strong> {{ orderData.benefit }}</p>
+              <p><strong>Destinasi:</strong> {{ orderData.destination }}</p>
+              <p><strong>Transport:</strong> {{ orderData.nama_kendaraan }} - Kapasitas {{ orderData.kendaraan_capacity }}</p>
             </div>
           </div>
 
@@ -55,23 +58,42 @@
                 required
                 readonly
               />
-
-
+              
               <label for="bookdate">Rencana Tanggal</label>
               <input
-                type="datetime-local"
+                type="date"
                 id="bookdate"
                 v-model="checkoutData.bookdate"
                 required
+                :min="minDate"
               />
+              <p>Akan dijemput ditanggal yang sudah dipilih pada pukul 07:00 sesuai deskripsi penjemputan</p>
 
               <label for="users">Jumlah Peserta</label>
-              <input
-                type="text"
-                id="users"
-                v-model="checkoutData.total_user"
-                required
-              />
+              <div class="participants-input">
+                <button
+                  type="button"
+                  @click="decreaseParticipants"
+                  :disabled="checkoutData.total_user <= orderData.min_person"
+                  class="btn btn-secondary btn-sm"
+                >-</button>
+                <input
+                  type="number"
+                  id="users"
+                  v-model="checkoutData.total_user"
+                  required
+                  :min="orderData.min_person"
+                  :max="orderData.max_person"
+                  :class="{'invalid': checkoutData.total_user > orderData.max_person}"
+                />
+                <button
+                  type="button"
+                  @click="increaseParticipants"
+                  :disabled="checkoutData.total_user >= orderData.max_person"
+                  class="btn btn-secondary btn-sm"
+                >+</button>
+              </div>
+
 
               <label for="descripsi">Deskripsi Penjemputan</label>
               <textarea
@@ -80,6 +102,14 @@
                 rows="4"
                 required
               ></textarea>
+              
+              <label for="totalPrice">Total Pembayaran</label>
+              <input
+                type="text"
+                id="totalPrice"
+                :value="totalPrice"
+                readonly
+              />
               
               <button
                 type="submit"
@@ -129,10 +159,15 @@
           phone: "",
           bookdate: "",
           confirmOrder: false
-        }
+        },
+        minDate: this.getMinDate(), // Mengambil tanggal sekarang dalam format ISO untuk min
+        maxTime: this.getMaxTime()
       };
     },
     computed: {
+      totalPrice() {
+        return this.checkoutData.total_user * this.orderData.price;
+      },
       // Validasi form sebelum submit
       isFormValid() {
         return (
@@ -161,6 +196,49 @@
       this.getData();
     },
     methods: {
+      increaseParticipants() {
+        if (this.checkoutData.total_user < this.orderData.kendaraan_capacity) {
+          this.checkoutData.total_user++;
+        }
+      },
+      decreaseParticipants() {
+        if (this.checkoutData.total_user > 1) {
+          this.checkoutData.total_user--;
+        }
+      },
+      // Menambahkan validasi ketika peserta melebihi kapasitas
+      isCapacityExceeded() {
+        return this.checkoutData.total_user > this.orderData.kendaraan_capacity;
+      },
+      showupsModal(){
+        if (!this.isCapacityExceeded()) {
+          this.isModalVisible = true;
+        }
+      },
+        getMinDate() {
+          const now = new Date();
+          now.setDate(now.getDate() + 2); // Menambahkan 2 hari dari tanggal sekarang
+          now.setHours(6, 0, 0, 0); // Set jam menjadi 09:00:00 (pagi)
+          
+          // Menghitung offset zona waktu Jakarta (+7 jam)
+          const jakartaOffset = 7 * 60;
+          const localOffset = now.getTimezoneOffset();
+          const jakartaTime = new Date(now.getTime() + (jakartaOffset + localOffset) * 60000);
+          
+          return jakartaTime.toISOString().slice(0, 10); // Mengembalikan format ISO (yyyy-mm-ddThh:mm)
+        },
+        getMaxTime() {
+          const now = new Date();
+          now.setDate(now.getDate() + 2); // Menambahkan 2 hari dari tanggal sekarang
+          now.setHours(10, 0, 0, 0); // Set jam menjadi 10:00:00 (pagi)
+          
+          // Menghitung offset zona waktu Jakarta (+7 jam)
+          const jakartaOffset = 7 * 60;
+          const localOffset = now.getTimezoneOffset();
+          const jakartaTime = new Date(now.getTime() + (jakartaOffset + localOffset) * 60000);
+          
+          return jakartaTime.toISOString().slice(0, 16); // Mengembalikan format ISO (yyyy-mm-ddThh:mm)
+        },
         async getData(){
             const wisataId = this.$route.params.id;
             const response = await fetch(`http://103.179.56.241:8000/wisata/${wisataId}`, {
@@ -173,6 +251,8 @@
 
             const data = await response.json();
             this.orderData = data;
+
+            this.checkoutData.total_user = this.orderData.min_person;
             console.log(data);
         },
         showupModal(){
@@ -190,7 +270,7 @@
               "description": "Payment Wisata",
               "status": "PENDING",
               "wisata_id": this.orderData.id,
-              "total_price": this.orderData.price
+              "total_price": this.totalPrice
             };
             
             // Kirim data ke server menggunakan Axios
@@ -214,7 +294,7 @@
               nama_wisata: this.orderData.nama,
               price: this.orderData.price,
               firstname: this.checkoutData.fullname.split(" ")[0], // Mengambil nama depan
-              lastname: this.checkoutData.fullname.split(" ").slice(1).join(" "), // Mengambil nama belakang
+              lastname: this.checkoutData.fullname.split(" ").slice(1).join(" ") || " ", // Mengambil nama belakang
               email: this.checkoutData.email,
               phone: this.checkoutData.phone,
               order_id: response.data.order_id
@@ -328,5 +408,31 @@ h4 {
   width: 400px;
   text-align: center;
 }
+.participants-input {
+  display: flex;
+  align-items: center;
+}
 
+.participants-input button {
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  border-radius: 4px;
+}
+
+.participants-input input {
+  width: 60px;
+  text-align: center;
+  margin: 0 10px;
+}
+
+.invalid {
+  border-color: red;
+  background-color: #ffe6e6;
+}
+
+.checkout-form button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
 </style>

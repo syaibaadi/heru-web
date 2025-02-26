@@ -23,6 +23,9 @@
               <router-link class="nav-link" to="/wisata">Wisata</router-link>
             </li>
             <li class="nav-item">
+              <router-link class="nav-link" to="/kendaraan">Kendaraan</router-link>
+            </li>
+            <li class="nav-item">
               <router-link class="nav-link" to="/about">About Us</router-link>
             </li>
           </ul>
