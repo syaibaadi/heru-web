@@ -166,7 +166,10 @@
     },
     computed: {
       totalPrice() {
-        return this.checkoutData.total_user * this.orderData.price;
+          const price = this.orderData.price || 0;  // Memastikan harga tidak undefined
+          const totalUser = this.checkoutData.total_user || 0;  // Memastikan jumlah peserta tidak undefined
+          console.log("Total Price dihitung: ", totalUser * price);
+          return totalUser * price;
       },
       // Validasi form sebelum submit
       isFormValid() {
@@ -266,7 +269,7 @@
               "telfon": this.checkoutData.phone,
               "alamat": this.checkoutData.address,
               "book_date": this.checkoutData.bookdate,
-              "total_user": 0,
+              "total_user": this.checkoutData.total_user,
               "description": "Payment Wisata",
               "status": "PENDING",
               "wisata_id": this.orderData.id,
@@ -292,7 +295,7 @@
             const paymentPayload = {
               wisata_id: this.orderData.id,
               nama_wisata: this.orderData.nama,
-              price: this.orderData.price,
+              price: this.totalPrice,
               firstname: this.checkoutData.fullname.split(" ")[0], // Mengambil nama depan
               lastname: this.checkoutData.fullname.split(" ").slice(1).join(" ") || " ", // Mengambil nama belakang
               email: this.checkoutData.email,
