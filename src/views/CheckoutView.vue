@@ -213,7 +213,7 @@
     },
     methods: {
       increaseParticipants() {
-        if (this.checkoutData.total_user < this.orderData.kendaraan_capacity) {
+        if (this.checkoutData.total_user < this.orderData.max_person) {
           this.checkoutData.total_user++;
           this.filterKendaraan(); // Filter kendaraan setelah peserta bertambah
         }
@@ -227,7 +227,7 @@
       },
       // Menambahkan validasi ketika peserta melebihi kapasitas
       isCapacityExceeded() {
-        return this.checkoutData.total_user > this.orderData.kendaraan_capacity;
+        return this.checkoutData.total_user > this.orderData.max_person;
       },
       showupsModal(){
         if (!this.isCapacityExceeded()) {
@@ -291,6 +291,9 @@
         },
         filterKendaraan() {
           this.filteredKendaraan = this.kendaraan.filter(kendaraan => kendaraan.capacity >= this.checkoutData.total_user);
+        },
+        closeModal(){
+          this.isModalVisible = false;
         },
         showupModal(){
           this.isModalVisible= true;
