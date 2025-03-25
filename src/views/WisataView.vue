@@ -22,7 +22,6 @@
             <li class="list-group-item">Destinasi: {{ wisata.destination }}</li>
             <li class="list-group-item">Benefit: {{ wisata.benefit }}</li>
             <li class="list-group-item">Price: Rp {{ wisata.price.toLocaleString() }}</li>
-            <li class="list-group-item">Transport: {{ wisata.kendaraan_nama }} - Kapasitas {{ wisata.kendaraan_capacity }}</li>
           </ul>
           <div class="card-body mt-auto">
             <!-- Link atau button sesuai kebutuhan -->

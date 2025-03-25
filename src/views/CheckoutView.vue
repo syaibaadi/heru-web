@@ -15,7 +15,6 @@
               <p><strong>Harga:</strong> Rp {{ orderData.price }} / orang</p>
               <p><strong>Benefit:</strong> {{ orderData.benefit }}</p>
               <p><strong>Destinasi:</strong> {{ orderData.destination }}</p>
-              <p><strong>Transport:</strong> {{ orderData.nama_kendaraan }} - Kapasitas {{ orderData.kendaraan_capacity }}</p>
             </div>
           </div>
 
@@ -94,6 +93,17 @@
                 >+</button>
               </div>
 
+              <!-- Dropdown kendaraan -->
+              <label for="vehicle">Pilih Kendaraan</label>
+              <select
+                id="vehicle"
+                v-model="checkoutData.selectedKendaraan"
+                required
+              >
+                <option v-for="kendaraan in filteredKendaraan" :key="kendaraan.id" :value="kendaraan.id">
+                  {{ kendaraan.nama }} - Kapasitas: {{ kendaraan.capacity }}
+                </option>
+              </select>
 
               <label for="descripsi">Deskripsi Penjemputan</label>
               <textarea
@@ -150,6 +160,8 @@
         // Data pesanan yang sudah ada
         orderData: {},
         orderan: null,
+        kendaraan: [], // Menyimpan data kendaraan dari API
+        filteredKendaraan: [], // Menyaring kendaraan yang sesuai kapasitasnya
         isModalVisible: false,
         // Data untuk checkout
         checkoutData: {
@@ -158,7 +170,8 @@
           address: "",
           phone: "",
           bookdate: "",
-          confirmOrder: false
+          confirmOrder: false,
+          selectedKendaraan: null, // Kendaraan yang dipilih
         },
         minDate: this.getMinDate(), // Mengambil tanggal sekarang dalam format ISO untuk min
         maxTime: this.getMaxTime()
@@ -202,11 +215,14 @@
       increaseParticipants() {
         if (this.checkoutData.total_user < this.orderData.kendaraan_capacity) {
           this.checkoutData.total_user++;
+          this.filterKendaraan(); // Filter kendaraan setelah peserta bertambah
         }
       },
+
       decreaseParticipants() {
-        if (this.checkoutData.total_user > 1) {
+        if (this.checkoutData.total_user > this.orderData.min_person) {
           this.checkoutData.total_user--;
+          this.filterKendaraan(); // Filter kendaraan setelah peserta berkurang
         }
       },
       // Menambahkan validasi ketika peserta melebihi kapasitas
@@ -217,6 +233,15 @@
         if (!this.isCapacityExceeded()) {
           this.isModalVisible = true;
         }
+      },
+      getSelectedKendaraanName() {
+        const selected = this.kendaraan.find(kendaraan => kendaraan.id === this.checkoutData.selectedKendaraan);
+        return selected ? selected.nama : "Belum memilih kendaraan";
+      },
+
+      getSelectedKendaraanCapacity() {
+        const selected = this.kendaraan.find(kendaraan => kendaraan.id === this.checkoutData.selectedKendaraan);
+        return selected ? selected.capacity : 0;
       },
         getMinDate() {
           const now = new Date();
@@ -243,20 +268,29 @@
           return jakartaTime.toISOString().slice(0, 16); // Mengembalikan format ISO (yyyy-mm-ddThh:mm)
         },
         async getData(){
-            const wisataId = this.$route.params.id;
-            const response = await fetch(`http://103.179.56.241:8000/wisata/${wisataId}`, {
-                method: 'GET'
-            });
+          const wisataId = this.$route.params.id;
+          const response = await fetch(`http://103.179.56.241:8000/wisata/${wisataId}`, {
+              method: 'GET'
+          });
 
-            if(!response.ok){
-                throw new Error("Failed Get Data Wisata");
-            }
+          if(!response.ok){
+              throw new Error("Failed Get Data Wisata");
+          }
 
-            const data = await response.json();
-            this.orderData = data;
+          const data = await response.json();
+          this.orderData = data;
 
-            this.checkoutData.total_user = this.orderData.min_person;
-            console.log(data);
+          this.checkoutData.total_user = this.orderData.min_person;
+          console.log(data);
+
+          // Ambil data kendaraan
+          const kendaraanResponse = await fetch('http://103.179.56.241:8000/kendaraan');
+          const kendaraanData = await kendaraanResponse.json();
+          this.kendaraan = kendaraanData;
+          this.filterKendaraan();
+        },
+        filterKendaraan() {
+          this.filteredKendaraan = this.kendaraan.filter(kendaraan => kendaraan.capacity >= this.checkoutData.total_user);
         },
         showupModal(){
           this.isModalVisible= true;
